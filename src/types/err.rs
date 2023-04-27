@@ -12,6 +12,12 @@ pub enum Error {
     #[error("Reqwest Failed: \n\t status code: {0}\n\t headers: {1:?}\n\t body: {2}")]
     RequestFailed(StatusCode, HeaderMap, String),
 
+    #[error("Response error: {0}")]
+    ResponseError(String),
+
+    #[error("Event stream error: {0}")]
+    EventStreamError(#[from] eventsource_stream::EventStreamError<reqwest::Error>),
+
     #[error("Serde JSON error: {0}")]
     SerdeJsonError(#[from] serde_json::Error),
 }
