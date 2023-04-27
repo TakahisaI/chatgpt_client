@@ -1,6 +1,12 @@
+use crate::types::{ChatInput, Error, Response, Result};
 use std::ops::{Deref, DerefMut};
 
-use crate::types::{ChatInput, Error, Response, Result};
+#[cfg(feature = "stream")]
+use crate::types::StreamItem;
+#[cfg(feature = "stream")]
+use eventsource_stream::{Event, Eventsource};
+#[cfg(feature = "stream")]
+use futures::stream::{unfold, Stream, StreamExt};
 
 #[derive(Debug, Clone)]
 pub struct Client(reqwest::Client);
@@ -40,19 +46,39 @@ impl Client {
     }
 
     pub async fn send<'a>(&self, input: &ChatInput<'a>) -> Result<reqwest::Response> {
-        Ok(self.post(Self::API_URL).body(input).send().await?)
-    }
-
-    pub async fn completion<'a>(&self, input: &ChatInput<'a>) -> Result<Response> {
-        let response = self.send(input).await?;
+        let response = self.post(Self::API_URL).body(input).send().await?;
         let status = response.status();
         if status.is_success() {
-            Ok(response.json::<Response>().await?)
+            Ok(response)
         } else {
             let status_code = response.status();
             let headers = response.headers().to_owned();
             let body = response.text().await?;
             Err(Error::RequestFailed(status_code, headers, body))
         }
+    }
+
+    pub async fn completion<'a>(&self, input: &ChatInput<'a>) -> Result<Response> {
+        Ok(self.send(input).await?.json::<Response>().await?)
+    }
+
+    #[cfg(feature = "stream")]
+    pub async fn stream<'a>(
+        &self,
+        input: &ChatInput<'a>,
+    ) -> Result<impl Stream<Item = Result<StreamItem<String>>>> {
+        let stream = self.send(input).await?.bytes_stream().eventsource();
+        Ok(unfold(stream, move |mut stream| async move {
+            while let Some(Ok(Event { data, .. })) = stream.next().await {
+                if data == "[DONE]" {
+                    continue;
+                }
+                match serde_json::from_str::<crate::types::Chunk>(&data) {
+                    Ok(chunk) => return Some((Ok(chunk.into()), stream)),
+                    Err(err) => return Some((Err(err.into()), stream)),
+                }
+            }
+            None
+        }))
     }
 }

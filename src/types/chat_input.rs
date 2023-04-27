@@ -12,6 +12,7 @@ pub struct ChatInput<'a> {
     pub top_p: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub n: Option<u8>,
+    #[cfg(feature = "stream")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,6 +37,7 @@ impl Default for ChatInput<'_> {
             temperature: None,
             top_p: None,
             n: None,
+            #[cfg(feature = "stream")]
             stream: None,
             stop: None,
             max_tokens: None,
