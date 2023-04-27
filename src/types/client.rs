@@ -104,7 +104,7 @@ impl Client {
                     let Event { data, .. } = result.map_err(Error::from)?;
 
                     if data == "[DONE]" {
-                        return Ok(Some(StreamItem::FinishReason(buffer.clone())));
+                        return Ok(Some(StreamItem::FinishReason(buffer.to_owned())));
                     }
 
                     let Chunk {
