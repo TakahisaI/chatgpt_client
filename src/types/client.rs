@@ -1,4 +1,4 @@
-use crate::types::{ChatInput, Error, Response, Result};
+use crate::{ChatInput, Error, Response, Result};
 use std::ops::{Deref, DerefMut};
 
 #[cfg(feature = "stream")]
