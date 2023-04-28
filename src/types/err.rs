@@ -15,6 +15,7 @@ pub enum Error {
     #[error("Response error: {0}")]
     ResponseError(String),
 
+    #[cfg(feature = "stream")]
     #[error("Event stream error: {0}")]
     EventStreamError(#[from] eventsource_stream::EventStreamError<reqwest::Error>),
 
