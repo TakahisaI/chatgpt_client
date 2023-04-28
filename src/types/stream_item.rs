@@ -31,30 +31,3 @@ impl From<crate::types::Chunk> for StreamItem<String> {
         }
     }
 }
-
-impl StreamItem<String> {
-    pub fn parse_json<T>(self) -> crate::Result<StreamItem<T>>
-    where
-        T: serde::de::DeserializeOwned,
-    {
-        match self {
-            StreamItem::Start {
-                id,
-                object,
-                created,
-                model,
-                role,
-            } => Ok(StreamItem::Start {
-                id,
-                object,
-                created,
-                model,
-                role,
-            }),
-            StreamItem::Content(content) => {
-                Ok(StreamItem::Content(serde_json::from_str(&content)?))
-            }
-            StreamItem::FinishReason(reason) => Ok(StreamItem::FinishReason(reason)),
-        }
-    }
-}
