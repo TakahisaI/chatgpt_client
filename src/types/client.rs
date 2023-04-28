@@ -66,7 +66,7 @@ impl Client {
     pub async fn stream(
         &self,
         input: &ChatInput<'_>,
-    ) -> Result<impl Stream<Item = Result<StreamItem<String>>>> {
+    ) -> Result<impl Stream<Item = Result<StreamItem>>> {
         let stream = self.send(input).await?.bytes_stream().eventsource();
         Ok(unfold(stream, move |mut stream| async move {
             while let Some(Ok(Event { data, .. })) = stream.next().await {
@@ -87,7 +87,7 @@ impl Client {
         &self,
         input: &ChatInput<'_>,
         delimiter: &str,
-    ) -> Result<impl Stream<Item = Result<StreamItem<String>>>> {
+    ) -> Result<impl Stream<Item = Result<StreamItem>>> {
         let stream = self.send(input).await?.bytes_stream().eventsource();
 
         Ok(unfold(
@@ -100,7 +100,7 @@ impl Client {
                     >,
                     buffer: &mut String,
                     delimiter: &str,
-                ) -> Result<Option<StreamItem<String>>> {
+                ) -> Result<Option<StreamItem>> {
                     let Event { data, .. } = result.map_err(Error::from)?;
 
                     if data == "[DONE]" {

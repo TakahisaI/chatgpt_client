@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum StreamItem<T> {
+pub enum StreamItem {
     Start {
         id: String,
         object: String,
@@ -7,11 +7,11 @@ pub enum StreamItem<T> {
         model: String,
         role: crate::types::Role,
     },
-    Content(T),
+    Content(String),
     FinishReason(String),
 }
 
-impl From<crate::types::Chunk> for StreamItem<String> {
+impl From<crate::types::Chunk> for StreamItem {
     fn from(mut chunk: crate::types::Chunk) -> Self {
         let choice = chunk.choices.first_mut().unwrap();
         if let Some(role) = choice.delta.role.take() {
