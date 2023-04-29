@@ -15,3 +15,12 @@ futures = { version = "0.3.26", optional = true }
 
 [features]
 stream = ["dep:eventsource-stream", "dep:futures", "reqwest/stream"]
+
+
+[[example]]
+name = "stream"
+required-features = ["stream"]
+
+[[example]]
+name = "compress"
+required-features = ["stream"]
