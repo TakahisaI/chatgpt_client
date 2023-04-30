@@ -8,6 +8,7 @@ use eventsource_stream::{Event, Eventsource};
 #[cfg(feature = "stream")]
 use futures::stream::{unfold, Stream, StreamExt};
 
+/// The main client structure to interact with the API.
 #[derive(Debug, Clone)]
 pub struct Client(reqwest::Client);
 
@@ -28,6 +29,15 @@ impl DerefMut for Client {
 impl Client {
     const API_URL: &'static str = "https://api.openai.com/v1/chat/completions";
 
+    /// Creates a new `Client` instance with the specified API key.
+    ///
+    /// # Arguments
+    ///
+    /// * `api_key` - A string slice that holds the API key.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a new `Client` instance or an `Error`.
     pub fn new(api_key: String) -> Result<Self> {
         let mut headers = reqwest::header::HeaderMap::new();
         headers.insert(
@@ -45,6 +55,15 @@ impl Client {
         Ok(Self(client))
     }
 
+    /// Sends the provided `ChatInput` to the API and returns the `reqwest::Response`.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - A reference to a `ChatInput` instance.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a `reqwest::Response` instance or an `Error`.
     pub async fn send(&self, input: &ChatInput<'_>) -> Result<reqwest::Response> {
         let response = self.post(Self::API_URL).body(input).send().await?;
         let status = response.status();
@@ -58,10 +77,28 @@ impl Client {
         }
     }
 
+    /// Sends a completion request to the API and returns the parsed `Response`.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - A reference to a `ChatInput` instance.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a `Response` instance or an `Error`.
     pub async fn completion<'a>(&self, input: &ChatInput<'a>) -> Result<Response> {
         Ok(self.send(input).await?.json::<Response>().await?)
     }
 
+    /// Stream API for processing a large input in chunks.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - A reference to a `ChatInput` instance.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a stream of `StreamItem` instances or an `Error`.
     #[cfg(feature = "stream")]
     pub async fn stream(
         &self,
@@ -82,6 +119,16 @@ impl Client {
         }))
     }
 
+    /// Compresses and processes the response stream using the specified delimiter.
+    ///
+    /// # Arguments
+    ///
+    /// * `input` - A reference to a `ChatInput` instance.
+    /// * `delimiter` - A string slice that holds the delimiter.
+    ///
+    /// # Returns
+    ///
+    /// A `Result` containing a stream of `StreamItem` instances or an `Error`.
     #[cfg(feature = "stream")]
     pub async fn compress(
         &self,

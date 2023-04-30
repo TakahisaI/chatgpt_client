@@ -1,3 +1,14 @@
+//! This module defines various types used throughout the ChatGPT API library.
+//!
+//! The types defined in this module include:
+//! - `ChatInput`: The input parameters for generating responses from the ChatGPT model.
+//! - `Chunk`, `ChunkChoice`, `Delta`: Types related to response streaming (when using the `stream` feature).
+//! - `Client`: The main ChatGPT API client.
+//! - `Message`, `Role`: Types related to messages and roles in conversations.
+//! - `Model`: The available ChatGPT models.
+//! - `Response`, `Choice`, `TokenUsage`: Types related to ChatGPT responses.
+//! - `StreamItem`: Type for processing streamed responses (when using the `stream` feature).
+
 pub mod chat_input;
 #[cfg(feature = "stream")]
 pub mod chunk;

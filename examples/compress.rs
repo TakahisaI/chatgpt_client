@@ -6,9 +6,8 @@ use std::env;
 async fn main() -> Result<()> {
     let api_key = env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY must be set");
     let client = Client::new(api_key)?;
-    let messages = vec![Message::system("Introduce yourself in 3 points")];
     let input = ChatInput {
-        messages: &messages,
+        messages: &[Message::system("Introduce yourself in 3 points")],
         stream: Some(true),
         ..Default::default()
     };
