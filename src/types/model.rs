@@ -5,9 +5,9 @@ use serde::Serialize;
 #[derive(Debug, Default, Copy, Clone, PartialEq, Serialize)]
 #[allow(non_camel_case_types)]
 pub enum Model {
-    #[default]
     #[serde(rename = "gpt-3.5-turbo")]
     Gpt35Turbo,
+    #[default]
     #[serde(rename = "gpt-4")]
     Gpt4,
     #[serde(rename = "gpt-4-32k")]
